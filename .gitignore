@@ -1,27 +1,27 @@
-venv/
-*.lib
-*.dll
-*.so
-*.pkl
-*.h5
-*.pt
-*.pth
-*.ckpt
-*.log
-docker/*.log
-frontend/build/
-node_modules/
-__pycache__/
-*.pyc
-.env
-__pycache__/
-*.pyc
-.env
-node_modules/
-build/
-dist/
-frontend/build/
-*.db
-*.sqlite3
-.DS_Store
-docker/*.log
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
