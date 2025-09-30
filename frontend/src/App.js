@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Navbar from './components/navbar';
-import Home from './pages/Home';
-import About from './pages/about/page';
-import Contact from './pages/contact/page';
+import Navbar from './components/navbar.tsx';
+import Home from './pages/Home.tsx';
+import About from './pages/about/page.tsx';
+import Contact from './pages/contact/page.tsx';
 import './styles/globals.css';
 
 function App() {

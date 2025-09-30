@@ -6,7 +6,7 @@ import { AlertCircle, CheckCircle2, Loader2, Upload, LinkIcon, FileText, Sparkle
 export default function Home() {
   const [inputType, setInputType] = useState("text");
   const [article, setArticle] = useState("");
-  const [file, setFile] = useState(/** @type {File|null} */(null));
+  const [file, setFile] = useState<File | null>(null);
   const [link, setLink] = useState("");
   const [prediction, setPrediction] = useState("");
   const [confidence, setConfidence] = useState(0);
@@ -15,12 +15,12 @@ export default function Home() {
   const [error, setError] = useState("");
   const [progress, setProgress] = useState(0);
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setArticle(e.target.value);
     if (error) setError("");
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       const validTypes = [
@@ -38,7 +38,7 @@ export default function Home() {
     }
   };
 
-  const handleLinkChange = (e) => {
+  const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLink(e.target.value);
     if (error) setError("");
   };
