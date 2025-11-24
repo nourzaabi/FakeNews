@@ -1,29 +1,45 @@
-venv/
+# Virtualenvs and caches
 .venv/
+venv/
 env/
 __pycache__/
 *.pyc
-*.pkl
-*.h5
-*.ckpt
-model_*/
-models/
-notebooks/
-notebooks/*.ipynb
-tokenizers/
-tokenizers/*
-nltk_data/
-processed/
-data/*.csv
-data/*.parquet
-data/*.zip
-data/WELFake_Dataset.csv
-data/Fake.csv
-data/True.csv
-frontend/node_modules/
+
+# Node
 node_modules/
+frontend/node_modules/
+
+# Editor & environment
 .vscode/
 vscode-server.tar.gz
 .DS_Store
 /.env
+
+# Python artifacts
+*.pkl
+*.h5
+*.ckpt
+
+# Explicitly ignore very large or binary data & model files that exceed GitHub's 100MB limit
+# Keep other code and smaller artifacts tracked.
+models/bert/pytorch_model.bin
+notebooks/processed/train.csv
+data/WELFake_Dataset.csv
+
+# Common large checkpoint patterns (ignore whole checkpoint directories)
+notebooks/**/checkpoint-*/
+
+# Large model artifacts
+*.safetensors
+*.pt
+*.bin
+
+# Notebook checkpoints
+*.ipynb_checkpoints
+
+# Optionally ignore large system libs and venv packages
+.venv/lib/**
+.venv/**/site-packages/**
+
+# tests / packaging
 *.sqlite3
