@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: 250 245 235;
+  --color-foreground: 20 14 8;
+  --color-card: 255 251 245;
+  --color-card-foreground: 20 14 8;
+  --color-popover: 255 251 245;
+  --color-popover-foreground: 20 14 8;
+  --color-primary: 20 14 8;
+  --color-primary-foreground: 250 245 235;
+  --color-secondary: 231 220 200;
+  --color-secondary-foreground: 20 14 8;
+  --color-muted: 231 220 200;
+  --color-muted-foreground: 115 100 85;
+  --color-accent: 231 220 200;
+  --color-accent-foreground: 20 14 8;
+  --color-destructive: 220 38 38;
+  --color-destructive-foreground: 250 245 235;
+  --color-border: 231 220 200;
+  --color-input: 231 220 200;
+  --color-ring: 20 14 8;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --color-background: 20 14 8;
+  --color-foreground: 250 245 235;
+  --color-card: 30 24 18;
+  --color-card-foreground: 250 245 235;
+  --color-popover: 30 24 18;
+  --color-popover-foreground: 250 245 235;
+  --color-primary: 250 245 235;
+  --color-primary-foreground: 20 14 8;
+  --color-secondary: 60 48 36;
+  --color-secondary-foreground: 250 245 235;
+  --color-muted: 60 48 36;
+  --color-muted-foreground: 180 165 150;
+  --color-accent: 60 48 36;
+  --color-accent-foreground: 250 245 235;
+  --color-destructive: 239 68 68;
+  --color-destructive-foreground: 250 245 235;
+  --color-border: 60 48 36;
+  --color-input: 60 48 36;
+  --color-ring: 250 245 235;
+}
+
+* {
+  border-color: rgb(var(--color-border));
+}
+
+body {
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}

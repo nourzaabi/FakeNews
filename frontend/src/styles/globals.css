@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 250 245 235;
+    --foreground: 20 14 8;
+    --card: 255 251 245;
+    --card-foreground: 20 14 8;
+    --popover: 255 251 245;
+    --popover-foreground: 20 14 8;
+    --primary: 20 14 8;
+    --primary-foreground: 250 245 235;
+    --secondary: 231 220 200;
+    --secondary-foreground: 20 14 8;
+    --muted: 231 220 200;
+    --muted-foreground: 115 100 85;
+    --accent: 231 220 200;
+    --accent-foreground: 20 14 8;
+    --destructive: 220 38 38;
+    --destructive-foreground: 250 245 235;
+    --border: 231 220 200;
+    --input: 231 220 200;
+    --ring: 20 14 8;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 20 14 8;
+    --foreground: 250 245 235;
+    --card: 30 24 18;
+    --card-foreground: 250 245 235;
+    --popover: 30 24 18;
+    --popover-foreground: 250 245 235;
+    --primary: 250 245 235;
+    --primary-foreground: 20 14 8;
+    --secondary: 60 48 36;
+    --secondary-foreground: 250 245 235;
+    --muted: 60 48 36;
+    --muted-foreground: 180 165 150;
+    --accent: 60 48 36;
+    --accent-foreground: 250 245 235;
+    --destructive: 239 68 68;
+    --destructive-foreground: 250 245 235;
+    --border: 60 48 36;
+    --input: 60 48 36;
+    --ring: 250 245 235;
+  }
+}
+
+* {
+  border-color: rgb(var(--border));
+}
+
+body {
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
