@@ -1,2 +1,35 @@
-Flask==2.3.3
-Flask-CORS==4.0.0
+# FastAPI server
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
+
+# Machine Learning
+torch
+transformers
+sentencepiece
+
+# Counter-argument generation (pipeline)
+accelerate
+
+# Extraction URL
+trafilatura
+
+# Extraction PDF
+PyMuPDF==1.23.7
+
+# Extraction DOCX
+python-docx
+
+# Extraction TXT (déjà natif, rien à installer)
+
+# OCR (optionnel)
+pytesseract
+easyocr
+opencv-python
+
+# Utils
+numpy
+pandas
+regex
+requests
