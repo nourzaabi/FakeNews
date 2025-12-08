@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
-from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
 from extraction import (
     extract_from_pdf,
@@ -10,11 +10,10 @@ from extraction import (
     extract_from_image
 )
 
-from model_fakenews import predict_text
+from model_fakenews.model_fakenews import predict_text, analyze_text_features
 
 app = FastAPI()
 
-# Enable CORS for frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,10 +21,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# -------------------------
-# Request Models
-# -------------------------
 class TextRequest(BaseModel):
     article: str
 
@@ -33,31 +28,31 @@ class UrlRequest(BaseModel):
     url: str
 
 
-# -------------------------
-# Endpoints
-# -------------------------
-
+# ---------------------------------------------------
+# TEXT PREDICTION (CORRECT)
+# ---------------------------------------------------
 @app.post("/predict")
 async def predict_article(body: TextRequest):
-    title = body.article[:50]
-    text = body.article
-
-    pred = predict_text(text)
+    pred = predict_text(body.article)
+    features = analyze_text_features(body.article)
 
     return {
-        "title": title,
-        "text": text,
+        "text": body.article,
         "prediction": pred["prediction"],
         "confidence": pred["confidence"],
-        "label": None,
-        "counterArgument": pred["counterArgument"]
+        "counterArgument": pred["counterArgument"],
+        "analysis": features,
     }
 
 
+# ---------------------------------------------------
+# FILE PREDICTION (BUG FIXED)
+# ---------------------------------------------------
 @app.post("/predict-file")
 async def predict_file(file: UploadFile = File(...)):
     filename = file.filename.lower()
 
+    # Sélection du bon extracteur
     if filename.endswith(".pdf"):
         title, text = await extract_from_pdf(file)
 
@@ -71,31 +66,35 @@ async def predict_file(file: UploadFile = File(...)):
         title, text = await extract_from_image(file)
 
     else:
-        return {"error": "Unsupported file type"}
+        return {"error": "Unsupported file type."}
 
+    # Prédiction
     pred = predict_text(text)
+    features = analyze_text_features(text)
 
     return {
-        "title": title,
         "text": text,
         "prediction": pred["prediction"],
         "confidence": pred["confidence"],
-        "label": None,
-        "counterArgument": pred["counterArgument"]
+        "counterArgument": pred["counterArgument"],
+        "analysis": features,
     }
 
 
+# ---------------------------------------------------
+# URL PREDICTION (SAFE)
+# ---------------------------------------------------
 @app.post("/predict-url")
 async def predict_url(body: UrlRequest):
     title, text = extract_from_url(body.url)
 
     pred = predict_text(text)
+    features = analyze_text_features(text)
 
     return {
-        "title": title,
         "text": text,
         "prediction": pred["prediction"],
         "confidence": pred["confidence"],
-        "label": None,
-        "counterArgument": pred["counterArgument"]
+        "counterArgument": pred["counterArgument"],
+        "analysis": features,
     }
