@@ -1,10 +1,9 @@
-import type React from "react"
+import React from "react";
 
-// This file is not used in Create React App - layout is handled in App.js
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  return <>{children}</>
+  return <>{children}</>;
 }
