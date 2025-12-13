@@ -25,6 +25,7 @@ vscode-server.tar.gz
 models/bert/pytorch_model.bin
 notebooks/processed/train.csv
 data/WELFake_Dataset.csv
+data/**
 
 # Common large checkpoint patterns (ignore whole checkpoint directories)
 notebooks/**/checkpoint-*/
