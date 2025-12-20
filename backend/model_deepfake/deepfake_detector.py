@@ -1,16 +1,27 @@
 import os
-# Force CPU usage and disable XLA/JIT to avoid compilation errors
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
-# Disable XLA
-os.environ["TF_XLA_FLAGS"] = "--tf_xla_enable_xla_devices=false"
-
 import cv2
 import numpy as np
+
+# Set TF logs to error only
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+
 import tensorflow as tf
 
-# Explicitly disable JIT compilation in TensorFlow
+# ---------------------------------------------------------
+# CRITICAL: HIDE GPU FROM TENSORFLOW (Preserve it for PyTorch)
+# ---------------------------------------------------------
+try:
+    # List all physical GPUs
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        # Restrict TensorFlow to use ONLY the CPU
+        tf.config.set_visible_devices([], 'GPU')
+        print("✅ TensorFlow forced to run on CPU (GPU hidden).")
+except Exception as e:
+    print(f"⚠️ Failed to hide GPU from TensorFlow: {e}")
+
+# Explicitly disable JIT compilation to avoid XLA errors
 tf.config.optimizer.set_jit(False)
 from tensorflow.keras.models import load_model
 from tensorflow.keras.applications.efficientnet import preprocess_input

@@ -97,9 +97,22 @@ class CounterArgGenerator:
 
         decoded = self.tokenizer.decode(out[0], skip_special_tokens=True)
 
-        # Return only the part after the split key if present
         if split_key in decoded:
             decoded = decoded.split(split_key, 1)[-1].strip()
+
+        # --- Post-processing / Cleaning ---
+        # Stop at common hallucination markers
+        stop_markers = ["\nNote:", "\nQuestion:", "\nAnswer:", "\nUser:", "\nAssistant:", "Actionable Suggestion:"]
+        
+        # We want to keep the "Actionable Suggestion" if it's part of the flow, but usually the model 
+        # hallucinates a *header* "Actionable Suggestion:" then starts rambling. 
+        # The prompt asks to "End with a short actionable suggestion".
+        # If the model explicitly types "Actionable Suggestion:", we might want to keep the line but stop after.
+        # But based on the user's issue, it's safer to cut off the conversational filler.
+
+        for marker in ["\nNote:", "\nQuestion:", "\nAnswer:", "\nUser:", "\nAssistant:", "\n\nHuman:", "\n\nAI:"]:
+            if marker in decoded:
+                decoded = decoded.split(marker)[0].strip()
 
         return {
             "counter_argument": decoded,

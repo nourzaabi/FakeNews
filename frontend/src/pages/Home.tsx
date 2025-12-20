@@ -173,8 +173,8 @@ export default function Home() {
               key={btn.type}
               onClick={() => setInputType(btn.type as InputType)}
               className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition-all ${inputType === btn.type
-                  ? "bg-white shadow-lg font-semibold"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "bg-white shadow-lg font-semibold"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <btn.icon className="w-4 h-4" />
@@ -261,12 +261,39 @@ export default function Home() {
             {counterArgument && (
               <div
                 className={`mt-4 p-4 border rounded-lg ${prediction === "Fake News"
-                    ? "bg-red-50 border-red-200 text-red-800"
-                    : "bg-green-50 border-green-200 text-green-800"
+                  ? "bg-red-50 border-red-200 text-red-800"
+                  : "bg-green-50 border-green-200 text-green-800"
                   }`}
               >
                 <strong>{prediction === "Fake News" ? "Counter-Argument / Reason:" : "Why it's likely true:"}</strong>
-                <p className="mt-1">{counterArgument}</p>
+                <div className="mt-2 text-sm leading-relaxed">
+                  {counterArgument
+                    .split(/(?=\d+[\)\.]\s)/)
+                    .filter(segment => segment.trim().length > 5)
+                    .map((segment, index) => {
+                      const parts = segment.split(/(\*\*.*?\*\*)/g);
+                      return (
+                        <p key={index} className="mb-2 last:mb-0">
+                          {parts.map((part, i) => {
+                            if (part.startsWith("**") && part.endsWith("**")) {
+                              return <strong key={i}>{part.slice(2, -2)}</strong>;
+                            }
+                            return part;
+                          })}
+                        </p>
+                      );
+                    })}
+                  {/* Fallback for text without numbering (single block) */}
+                  {!/\d+[\)\.]\s/.test(counterArgument) && (
+                    <p>
+                      {counterArgument.split(/(\*\*.*?\*\*)/g).map((part, i) =>
+                        part.startsWith("**") && part.endsWith("**")
+                          ? <strong key={i}>{part.slice(2, -2)}</strong>
+                          : part
+                      )}
+                    </p>
+                  )}
+                </div>
               </div>
             )}
           </div>

@@ -13,7 +13,7 @@ class Settings:
     QUANT: str = os.getenv("QUANT", "4bit")
 
     # Generation
-    MAX_NEW_TOKENS: int = int(os.getenv("MAX_NEW_TOKENS", "220"))
+    MAX_NEW_TOKENS: int = int(os.getenv("MAX_NEW_TOKENS", "512"))
     TEMPERATURE: float = float(os.getenv("TEMPERATURE", "0.25"))
     TOP_P: float = float(os.getenv("TOP_P", "0.9"))
 
