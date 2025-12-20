@@ -152,10 +152,10 @@ export default function Home() {
             This model was trained on <b>127,000+ political and societal news</b>
             from U.S. media. It works best with:
             <br /><br />
-            ✔ Government, elections, public policies  
-            ✔ Trump / Obama / Clinton news  
-            ✔ FBI, CIA, White House, U.S. agencies  
-            ✔ Social issues & public administration  
+            ✔ Government, elections, public policies
+            ✔ Trump / Obama / Clinton news
+            ✔ FBI, CIA, White House, U.S. agencies
+            ✔ Social issues & public administration
             <br /><br />
             🚫 Not recommended:
             astronomy, medicine, science fiction, extreme hoaxes, sports.
@@ -172,11 +172,10 @@ export default function Home() {
             <button
               key={btn.type}
               onClick={() => setInputType(btn.type as InputType)}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition-all ${
-                inputType === btn.type
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg transition-all ${inputType === btn.type
                   ? "bg-white shadow-lg font-semibold"
                   : "text-gray-500 hover:bg-gray-100"
-              }`}
+                }`}
             >
               <btn.icon className="w-4 h-4" />
               {btn.label}
@@ -259,10 +258,16 @@ export default function Home() {
 
             <p className="mt-2 text-gray-700">{getExplanation()}</p>
 
-            {prediction === "Fake News" && counterArgument && (
-              <p className="mt-4 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg">
-                {counterArgument}
-              </p>
+            {counterArgument && (
+              <div
+                className={`mt-4 p-4 border rounded-lg ${prediction === "Fake News"
+                    ? "bg-red-50 border-red-200 text-red-800"
+                    : "bg-green-50 border-green-200 text-green-800"
+                  }`}
+              >
+                <strong>{prediction === "Fake News" ? "Counter-Argument / Reason:" : "Why it's likely true:"}</strong>
+                <p className="mt-1">{counterArgument}</p>
+              </div>
             )}
           </div>
         )}

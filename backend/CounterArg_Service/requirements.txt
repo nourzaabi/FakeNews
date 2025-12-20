@@ -1,0 +1,29 @@
+# --- Core API ---
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.8.2
+
+# --- Transformers & LLM ---
+transformers==4.44.2
+accelerate==0.33.0
+safetensors==0.4.4
+sentencepiece==0.2.0
+protobuf>=3.20,<5
+
+# --- PyTorch (GPU version installed separately via conda or pip cu121) ---
+# DO NOT put torch version here if using conda
+# torch
+# torchvision
+# torchaudio
+
+# --- Quantization (GPU) ---
+bitsandbytes==0.43.3
+
+# --- RAG ---
+sentence-transformers==3.0.1
+faiss-cpu==1.8.0.post1   # use faiss-gpu ONLY if CUDA FAISS is installed
+numpy==1.26.4            # 🔴 IMPORTANT: NumPy < 2.0
+
+# --- Utils ---
+tqdm
+requests

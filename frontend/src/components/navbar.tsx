@@ -34,6 +34,9 @@ export default function Navbar() {
             <Link to="/" className="px-4 py-2 rounded-md hover:bg-primary-foreground/10 transition-colors">
               Home
             </Link>
+            <Link to="/deepfake" className="px-4 py-2 rounded-md hover:bg-primary-foreground/10 transition-colors">
+              Deepfake
+            </Link>
             <Link to="/about" className="px-4 py-2 rounded-md hover:bg-primary-foreground/10 transition-colors">
               About
             </Link>
@@ -61,6 +64,13 @@ export default function Navbar() {
               onClick={() => setMenuOpen(false)}
             >
               Home
+            </Link>
+            <Link
+              to="/deepfake"
+              className="block px-4 py-2 rounded-md hover:bg-primary-foreground/10 transition-colors"
+              onClick={() => setMenuOpen(false)}
+            >
+              Deepfake
             </Link>
             <Link
               to="/about"

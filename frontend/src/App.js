@@ -4,6 +4,7 @@ import Navbar from './components/navbar.tsx';
 import Home from './pages/Home.tsx';
 import About from './pages/about/page.tsx';
 import Contact from './pages/contact/page.tsx';
+import Deepfake from './pages/Deepfake.tsx';
 import './styles/globals.css';
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/deepfake" element={<Deepfake />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
       </Routes>

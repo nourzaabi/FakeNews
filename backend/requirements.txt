@@ -1,47 +1,48 @@
 ###########################################################
 # 🌐 FASTAPI SERVER
 ###########################################################
-fastapi==0.109.0
-uvicorn[standard]==0.25.0
-python-multipart==0.0.6
-pydantic==1.10.13
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic
 
 ###########################################################
 # 🤖 MACHINE LEARNING (RoBERTa MODEL)
 ###########################################################
-torch==2.0.1
-torchvision==0.15.2
-torchaudio==2.0.2
+torch
+torchvision
+torchaudio
 
-transformers==4.36.2
+transformers
 sentencepiece
-accelerate==0.26.1
+accelerate
 
 ###########################################################
 # 🌍 URL & HTML EXTRACTION
 ###########################################################
-trafilatura==1.6.3
-newspaper3k==0.2.8
-beautifulsoup4==4.12.2
-requests==2.31.0
+trafilatura
+newspaper3k
+beautifulsoup4
+requests
 
 ###########################################################
 # 📄 DOCUMENT EXTRACTION (PDF / DOCX / TXT)
 ###########################################################
-PyMuPDF==1.23.7        # fitz (PDF)
-python-docx==1.1.0     # DOCX parsing
+PyMuPDF        # fitz (PDF)
+python-docx     # DOCX parsing
 # TXT extraction is native → no library needed
 
 ###########################################################
 # 🖼️ OCR (IMAGE → TEXT)
 ###########################################################
-easyocr==1.7.1
-opencv-python==4.9.0.80
-pytesseract==0.3.10
+easyocr
+opencv-python
+pytesseract
 
 ###########################################################
 # 🧰 UTILITIES
 ###########################################################
-numpy==1.26.4
-pandas==2.1.4
+numpy
+pandas
 regex
+tensorflow
