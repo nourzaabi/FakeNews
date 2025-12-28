@@ -1,25 +1,32 @@
+# src/pipelines/run_inference.py
 import argparse
 import json
 import time
 from pathlib import Path
+from typing import Dict, Any, Iterator
 
 import mlflow
 
 from src.core.generator import CounterArgGenerator
 from src.core.config import settings
 from src.utils.mlflow_utils import set_experiment, log_params, log_metrics, log_json, log_file
+from src.utils.logging_utils import log_prediction  # ✅ S4 logging JSONL
 
 
-def read_jsonl(path: str):
+def read_jsonl(path: str) -> Iterator[Dict[str, Any]]:
     with open(path, "r", encoding="utf-8") as f:
         for line in f:
-            if line.strip():
+            line = line.strip()
+            if line:
                 yield json.loads(line)
 
 
 def main(input_path: str, out_path: str):
+    # ✅ Ensure folders exist
     Path("artifacts/reports").mkdir(parents=True, exist_ok=True)
+    Path("artifacts/logs").mkdir(parents=True, exist_ok=True)
 
+    # ✅ Snapshot config (params)
     cfg = {
         "MODEL_NAME": getattr(settings, "MODEL_NAME", None),
         "DEVICE_MAP": getattr(settings, "DEVICE_MAP", None),
@@ -34,24 +41,36 @@ def main(input_path: str, out_path: str):
     gen = CounterArgGenerator()
 
     latencies = []
-    outputs = []
+    output_lens = []
     success = 0
     non_empty = 0
     preds = []
 
-    for row in read_jsonl(input_path):
-        claim = row.get("claim", "")
-        label = row.get("label", "fake")
+    # ✅ For monitoring baseline log file
+    log_path = "artifacts/logs/predictions.log.jsonl"
 
-        t0 = time.time()
+    for row in read_jsonl(input_path):
+        claim = row.get("claim", "") or ""
+        label = row.get("label", "fake") or "fake"
+        sample_id = row.get("id", None)
+
+        t0 = time.perf_counter()
+        ok = True
+        error_msg = None
+
         try:
             res = gen.generate(claim=claim, label=label, retrieved=None)
-            ok = True
         except Exception as e:
-            res = {"counter_argument": "", "error": str(e), "used_rag": False, "sources": []}
             ok = False
+            error_msg = str(e)
+            res = {
+                "counter_argument": "",
+                "error": error_msg,
+                "used_rag": False,
+                "sources": [],
+            }
 
-        dt_ms = (time.time() - t0) * 1000.0
+        dt_ms = (time.perf_counter() - t0) * 1000.0
         latencies.append(dt_ms)
 
         if ok:
@@ -60,17 +79,32 @@ def main(input_path: str, out_path: str):
         ca = (res.get("counter_argument") or "").strip()
         if ca:
             non_empty += 1
-            outputs.append(ca)
+            output_lens.append(len(ca))
 
+        # ✅ Save per-sample prediction record
         preds.append({
-            "id": row.get("id"),
+            "id": sample_id,
             "claim": claim,
             "label": label,
             "latency_ms": dt_ms,
             "result": res,
         })
 
-    # Save predictions
+        # ✅ S4: structured monitoring log (JSONL)
+        log_prediction(
+            {
+                "latency_ms": dt_ms,
+                "model_name": cfg.get("MODEL_NAME"),
+                "input_len": len(claim),
+                "output_len": len(ca),
+                "used_rag": bool(res.get("used_rag", False)),
+                "success": ok,
+                **({"error": error_msg} if error_msg else {}),
+            },
+            log_path=log_path
+        )
+
+    # ✅ Save predictions.jsonl
     outp = Path(out_path)
     outp.parent.mkdir(parents=True, exist_ok=True)
     with open(outp, "w", encoding="utf-8") as f:
@@ -80,20 +114,25 @@ def main(input_path: str, out_path: str):
     n = max(len(preds), 1)
     metrics = {
         "avg_latency_ms": sum(latencies) / max(len(latencies), 1),
-        "avg_output_len": sum(len(o) for o in outputs) / max(len(outputs), 1),
+        "avg_output_len": (sum(output_lens) / max(len(output_lens), 1)) if output_lens else 0.0,
         "success_rate": success / n,
         "non_empty_rate": non_empty / n,
         "num_samples": float(len(preds)),
     }
 
+    # ✅ MLflow experiment
     set_experiment("llm_inference")
 
     with mlflow.start_run(run_name="inference_run"):
+        # params + metrics
         log_params(cfg)
         log_metrics(metrics)
+
+        # artifacts
         log_json(cfg, "artifacts/reports/config_snapshot.json")
         log_json(metrics, "artifacts/reports/metrics.json")
-        log_file(str(outp))
+        log_file(str(outp))          # predictions.jsonl
+        log_file(log_path)           # ✅ monitoring log JSONL
 
 
 if __name__ == "__main__":
