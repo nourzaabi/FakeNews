@@ -1,4 +1,4 @@
-<<<<<<< Updated upstream
+#Updated upstream
 Flask==2.3.3
 Flask-CORS==4.0.0
 pandas==2.1.4
@@ -12,7 +12,7 @@ torchvision==0.20.1+cu121
 torchaudio==2.5.1+cu121
 tqdm
 
-=======
+
 Flask==2.3.3
 Flask-CORS==4.0.0
 pandas==2.1.4
@@ -27,7 +27,8 @@ torchaudio==2.5.1+cu121
 tqdm
 
 mlflow==2.14.3
->>>>>>> Stashed changes
+#Stashed changes
+
 
 
 
