@@ -47,3 +47,8 @@ notebooks/**/checkpoint-*/
 
 # Allow DVC metafiles
 !data/**/*.dvc
+
+.env.dev
+.env.staging
+.env.prod
+
