@@ -20,7 +20,13 @@ from src.core.generator import CounterArgGenerator
 
 app = FastAPI(title="Counter-Argumentation Service", version="1.0")
 
-gen = CounterArgGenerator()
+gen = None
+
+def get_gen():
+    global gen
+    if gen is None:
+        gen = CounterArgGenerator()
+    return gen
 
 # ✅ RAG placeholder (disabled by default)
 rag = None
