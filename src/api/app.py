@@ -3,8 +3,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 import time
-import json
 from pathlib import Path
+import uuid
 
 import mlflow
 
@@ -20,13 +20,15 @@ from src.core.generator import CounterArgGenerator
 
 app = FastAPI(title="Counter-Argumentation Service", version="1.0")
 
-gen = None
+# --- Lazy loaded generator ---
+_gen: Optional[CounterArgGenerator] = None
 
-def get_gen():
-    global gen
-    if gen is None:
-        gen = CounterArgGenerator()
-    return gen
+def get_gen() -> CounterArgGenerator:
+    global _gen
+    if _gen is None:
+        print("🔄 Loading CounterArgGenerator (lazy load)...")
+        _gen = CounterArgGenerator()
+    return _gen
 
 # ✅ RAG placeholder (disabled by default)
 rag = None
@@ -46,7 +48,6 @@ class GenerateResponse(BaseModel):
 
 
 def _cfg_snapshot() -> Dict[str, Any]:
-    """Small config snapshot for MLflow params/artifacts."""
     return {
         "MODEL_NAME": getattr(settings, "MODEL_NAME", None),
         "DEVICE_MAP": getattr(settings, "DEVICE_MAP", None),
@@ -61,18 +62,15 @@ def _cfg_snapshot() -> Dict[str, Any]:
 
 @app.post("/generate-counter", response_model=GenerateResponse)
 def generate_counter(req: GenerateRequest):
-    # Ensure reports dir exists (for optional local json artifacts)
+    # optional local dir (safe)
     Path("artifacts/reports").mkdir(parents=True, exist_ok=True)
 
     # ✅ Always use the correct experiment
     set_experiment("llm_inference")
-
-    # ✅ Prepare cfg params
     cfg = _cfg_snapshot()
 
     # ✅ Guard (only generate counter-args if Fake)
     if req.label is not None and req.label.lower() != "fake":
-        # local structured log
         log_prediction({
             "latency_ms": 0.0,
             "model_name": getattr(settings, "MODEL_NAME", "unknown"),
@@ -83,7 +81,6 @@ def generate_counter(req: GenerateRequest):
             "note": "skipped_generation_not_fake",
         })
 
-        # MLflow run for observability too
         with mlflow.start_run(run_name="api_request_skipped"):
             log_params(cfg)
             log_metrics({
@@ -118,13 +115,15 @@ def generate_counter(req: GenerateRequest):
     if rag is not None and getattr(settings, "USE_RAG", False):
         retrieved = rag.retrieve(req.text, top_k=getattr(settings, "TOP_K", 4))
 
+    # ✅ Lazy model load HERE (not at import time)
+    gen = get_gen()
+
     # ✅ Measure latency + safe inference
     t0 = time.perf_counter()
     ok = True
     err = None
 
     try:
-        # IMPORTANT: your generator signature is generate(claim=..., label=..., retrieved=...)
         result = gen.generate(claim=req.text, label=req.label or "fake", retrieved=retrieved)
     except Exception as e:
         ok = False
@@ -135,7 +134,7 @@ def generate_counter(req: GenerateRequest):
     ca = (result.get("counter_argument") or "").strip()
     used_rag = bool(result.get("used_rag", False))
 
-    # ✅ Local structured logging (jsonl file via your logging_utils)
+    # ✅ Local structured logging (jsonl file)
     log_prediction({
         "latency_ms": latency_ms,
         "model_name": getattr(settings, "MODEL_NAME", "unknown"),
@@ -148,10 +147,7 @@ def generate_counter(req: GenerateRequest):
 
     # ✅ MLflow run per API request
     with mlflow.start_run(run_name="api_request"):
-        # params
         log_params(cfg)
-
-        # metrics
         log_metrics({
             "latency_ms": float(latency_ms),
             "success": 1.0 if ok else 0.0,
@@ -160,9 +156,10 @@ def generate_counter(req: GenerateRequest):
             "used_rag": 1.0 if used_rag else 0.0,
         })
 
-        # artifacts: input/output payload
+        # payload artifact (each run has its own artifact folder)
         log_json(
             {
+                "request_id": str(uuid.uuid4()),
                 "input": req.model_dump(),
                 "retrieved": retrieved,
                 "output": result,
@@ -181,4 +178,9 @@ def generate_counter(req: GenerateRequest):
 
 @app.get("/health")
 def health():
-    return {"ok": True, "model": settings.MODEL_NAME, "use_rag": settings.USE_RAG}
+    return {
+        "ok": True,
+        "model": getattr(settings, "MODEL_NAME", None),
+        "use_rag": getattr(settings, "USE_RAG", False),
+        "model_loaded": _gen is not None,   # ✅ important for Docker/debug
+    }
