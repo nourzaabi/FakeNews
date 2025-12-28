@@ -44,3 +44,6 @@ notebooks/**/checkpoint-*/
 
 # tests / packaging
 *.sqlite3
+
+# Allow DVC metafiles
+!data/**/*.dvc
