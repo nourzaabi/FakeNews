@@ -13,3 +13,8 @@ tqdm
 mlflow==2.14.3
 dvc>=3.0.0
 python-dotenv>=1.0.0
+fastapi
+uvicorn[standard]
+pytest
+httpx
+
