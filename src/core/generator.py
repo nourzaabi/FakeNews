@@ -1,4 +1,10 @@
+import os
 from typing import Dict, Any, List
+
+# ===============================
+# FORCE MOCK (MLOps mode)
+# ===============================
+FORCE_MOCK = os.getenv("FORCE_MOCK", "false").lower() in ("1", "true", "yes")
 
 # ===============================
 # Safe imports (torch / transformers)
@@ -84,8 +90,8 @@ Claim:
 # ===============================
 class CounterArgGenerator:
     def __init__(self):
-        # 🔥 MOCK MODE if torch OR transformers missing
-        self.mock_mode = not (TORCH_AVAILABLE and TRANSFORMERS_AVAILABLE)
+        # ✅ Mock if forced OR deps missing
+        self.mock_mode = FORCE_MOCK or not (TORCH_AVAILABLE and TRANSFORMERS_AVAILABLE)
 
         if self.mock_mode:
             self.tokenizer = None
@@ -93,26 +99,24 @@ class CounterArgGenerator:
             return
 
         # Real model loading
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            settings.MODEL_NAME, use_fast=True
-        )
+        self.tokenizer = AutoTokenizer.from_pretrained(settings.MODEL_NAME, use_fast=True)
 
         kwargs = {"device_map": settings.DEVICE_MAP}
         dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
+        # ❌ 4bit requires bitsandbytes (not reliable on Windows)
+        # If QUANT=4bit but bitsandbytes not installed -> fallback to normal
         if settings.QUANT == "4bit":
-            kwargs.update({
-                "load_in_4bit": True,
-                "torch_dtype": dtype,
-            })
+            try:
+                import bitsandbytes  # noqa: F401
+                kwargs.update({"load_in_4bit": True, "torch_dtype": dtype})
+            except Exception:
+                # fallback without quantization
+                kwargs.update({"torch_dtype": dtype})
         else:
-            kwargs.update({
-                "torch_dtype": dtype,
-            })
+            kwargs.update({"torch_dtype": dtype})
 
-        self.model = AutoModelForCausalLM.from_pretrained(
-            settings.MODEL_NAME, **kwargs
-        )
+        self.model = AutoModelForCausalLM.from_pretrained(settings.MODEL_NAME, **kwargs)
         self.model.eval()
 
     def generate(
@@ -126,16 +130,14 @@ class CounterArgGenerator:
         if self.mock_mode:
             return {
                 "counter_argument": (
-                    "Mock mode: torch/transformers not available. "
-                    "This response is generated to validate the MLOps "
-                    "pipeline (API, MLflow, CI/CD, monitoring)."
+                    "[MOCK] This claim needs verification. "
+                    "Use trusted sources and check evidence before believing it."
                 ),
                 "used_rag": bool(retrieved),
                 "sources": retrieved or [],
             }
 
         prompt, split_key = build_prompt(claim, label, retrieved)
-
         inputs = self.tokenizer(prompt, return_tensors="pt")
 
         if torch.cuda.is_available() and settings.DEVICE_MAP in ("auto", "cuda"):
