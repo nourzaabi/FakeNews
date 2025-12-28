@@ -25,7 +25,10 @@ torch==2.5.1+cu121
 torchvision==0.20.1+cu121
 torchaudio==2.5.1+cu121
 tqdm
->>>>>>> Stashed changes
 
 mlflow==2.14.3
+>>>>>>> Stashed changes
+
+
+
 
