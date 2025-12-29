@@ -18,3 +18,5 @@ uvicorn[standard]
 pytest
 httpx
 
+prometheus-fastapi-instrumentator==7.0.0
+
