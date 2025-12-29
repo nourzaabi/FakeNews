@@ -5,6 +5,7 @@ from typing import Optional, List, Dict, Any
 import time
 from pathlib import Path
 import uuid
+from prometheus_fastapi_instrumentator import Instrumentator
 
 import mlflow
 
@@ -19,6 +20,7 @@ from src.core.config import settings
 from src.core.generator import CounterArgGenerator
 
 app = FastAPI(title="Counter-Argumentation Service", version="1.0")
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 # --- Lazy loaded generator ---
 _gen: Optional[CounterArgGenerator] = None
